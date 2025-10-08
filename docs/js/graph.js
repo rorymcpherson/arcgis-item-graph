@@ -18,14 +18,14 @@ const iconConfig = {
   "Web Map": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/maps16.svg",
-    size: 15,
+    size: 30,
   },
   "Feature Service": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/featureshosted16.svg",
     size: 15,
   },
-  Table: {
+  "Table": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/table16.svg",
     size: 15,
@@ -33,9 +33,9 @@ const iconConfig = {
   "Web Mapping Application": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/instantapps16.svg",
-    size: 15,
+    size: 30,
   },
-  Notebook: {
+  "Notebook": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/notebook16.svg",
     size: 15,
@@ -48,7 +48,7 @@ const iconConfig = {
   "Web Experience": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/experiencebuilder16.svg",
-    size: 15,
+    size: 30,
   },
   "Service Definition": {
     image:
@@ -60,12 +60,12 @@ const iconConfig = {
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/desktopstyle16.svg",
     size: 15,
   },
-  Style: {
+  "Style": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/style16.svg",
     size: 15,
   },
-  Form: {
+  "Form": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/survey16.svg",
     size: 15,
@@ -75,24 +75,60 @@ const iconConfig = {
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/webscenelocal16.svg",
     size: 15,
   },
-  Application: {
+  "Application": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/apps16.svg",
     size: 15,
   },
-  Dashboard: {
+  "Dashboard": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/dashboard16.svg",
-    size: 15,
+    size: 30,
   },
-  Image: {
+  "Image": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/image16.svg",
     size: 15,
   },
-  Solution: {
+  "Solution": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/solutions16.svg",
+    size: 15,
+  },
+  "Image Service": {
+    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/tiledimagerylayer16.svg",
+    size: 15,
+  },
+  "Vector Tile Service": {
+    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/vectortile16.svg",
+    size: 15,
+  },
+  "Tiled Imagery Layer": {
+    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/tiledimagerylayer16.svg",
+    size: 15,
+  },
+  "Tile Layer": {
+    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/maptiles16.svg",
+    size: 15,
+  },
+  "Map Service": {
+    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/maptiles16.svg",
+    size: 15,
+  },
+  "Geocoding Service": {
+    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/geocodeservice16.svg",
+    size: 15,
+  },
+  "Vector Tile Package": {
+    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/vectortilepackage16.svg",
+    size: 15,
+  },
+  "OGCFeatureServer": {
+    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/features16.svg",
+    size: 15,
+  },
+  "WFS": {
+    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/featureshosted16.svg",
     size: 15,
   },
 };
