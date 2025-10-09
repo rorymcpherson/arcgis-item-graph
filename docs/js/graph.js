@@ -253,14 +253,14 @@ function createGraph(graph) {
     .append("marker")
     .attr("id", "arrowhead")
     .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 18) // Adjust based on node size
+    .attr("refX", 0) // tip of arrowhead at start
     .attr("refY", 0)
     .attr("markerWidth", 8)
     .attr("markerHeight", 8)
     .attr("orient", "auto")
     .attr("fill", "#999")
     .append("path")
-    .attr("d", "M0,-5L10,0L0,5");
+    .attr("d", "M10,-5L0,0L10,5"); // reversed path
 
   // Add container group for zoom/pan
   const container = svg.append("g");
@@ -311,13 +311,16 @@ function createGraph(graph) {
         .radius(Number(document.getElementById("collision-radius").value))
     );
 
-  const link = container
+  const linkLine = container
     .append("g")
+    .attr("class", "link-lines")
     .selectAll("line")
     .data(graph.links)
     .join("line")
     .attr("class", "link")
-    .attr("marker-end", "url(#arrowhead)");
+    .attr("stroke", "#999")
+    .attr("stroke-opacity", 0.6)
+    .attr("stroke-width", 1);
 
   const popup = d3.select("#popup");
 
@@ -394,6 +397,18 @@ function createGraph(graph) {
       updateHaloColor(node, d);
     });
 
+  const linkArrow = container
+    .append("g")
+    .attr("class", "link-arrows")
+    .selectAll("line")
+    .data(graph.links)
+    .join("line")
+    .attr("class", "link-arrow")
+    .attr("stroke", "#999")
+    .attr("stroke-width", 1)
+    .attr("stroke-opacity", 0) // <--- Hide the shaft
+    .attr("marker-end", "url(#arrowhead)");
+
   const scaleInput = document.querySelector('input[type="range"][oninput*="setNodeSize"]');
   const scale_percentage = scaleInput ? scaleInput.value / 100 : 1;
 
@@ -440,18 +455,41 @@ function createGraph(graph) {
   simulation.on("tick", () => {
     const scaleInput = document.querySelector('input[type="range"][oninput*="setNodeSize"]');
     const scale_percentage = scaleInput ? scaleInput.value / 100 : 1;
-    const arrowLength = 5; // Try 8 or 10, adjust for best fit
+    const arrowLength = 5;
 
-    link
+    linkLine
       .attr("x1", (d) => d.source.x)
       .attr("y1", (d) => d.source.y)
-      .attr("x2", (d) => {
+      .attr("x2", (d) => d.target.x)
+      .attr("y2", (d) => d.target.y);
+
+    linkArrow
+      .attr("x1", (d) => {
+        // Arrow shaft starts just before the tip
         const dx = d.target.x - d.source.x;
         const dy = d.target.y - d.source.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const sizes = getNodeSizes(d.target, scale_percentage);
-        // Subtract arrowLength from halo radius
         const r = Math.max(0, sizes.haloRadius - arrowLength);
+        if (dist === 0) return d.target.x;
+        return d.target.x - (dx / dist) * r;
+      })
+      .attr("y1", (d) => {
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const sizes = getNodeSizes(d.target, scale_percentage);
+        const r = Math.max(0, sizes.haloRadius - arrowLength);
+        if (dist === 0) return d.target.y;
+        return d.target.y - (dy / dist) * r;
+      })
+      .attr("x2", (d) => {
+        // Arrow tip
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const sizes = getNodeSizes(d.target, scale_percentage);
+        const r = Math.max(0, sizes.haloRadius);
         if (dist === 0) return d.target.x;
         return d.target.x - (dx / dist) * r;
       })
@@ -460,7 +498,7 @@ function createGraph(graph) {
         const dy = d.target.y - d.source.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const sizes = getNodeSizes(d.target, scale_percentage);
-        const r = Math.max(0, sizes.haloRadius - arrowLength);
+        const r = Math.max(0, sizes.haloRadius);
         if (dist === 0) return d.target.y;
         return d.target.y - (dy / dist) * r;
       });
