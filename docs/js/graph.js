@@ -597,71 +597,59 @@ function resetPhysics() {
 }
 
 function saveAsSVG() {
-  if (!currentContainer || !currentGraph) {
+  // Select the current SVG element
+  const svgElement = document.querySelector("svg");
+  if (!svgElement) {
     alert("No graph data to save");
     return;
   }
 
-  const svgCopy = d3
-    .create("svg")
-    .attr("xmlns", "http://www.w3.org/2000/svg")
-    .attr("width", currentWidth)
-    .attr("height", currentHeight);
+  // Clone the SVG node deeply
+  const clone = svgElement.cloneNode(true);
 
-  // Create container with current transform
-  const containerCopy = svgCopy
-    .append("g")
-    .attr("transform", currentContainer.attr("transform"));
-
-  // Add edges (links) first so they appear behind nodes
-  containerCopy
-    .selectAll(".link")
-    .data(currentGraph.links)
-    .join("line")
-    .attr("stroke", "#999")
-    .attr("stroke-opacity", 0.6)
-    .attr("stroke-width", 1)
-    .attr("x1", (d) => d.source.x)
-    .attr("y1", (d) => d.source.y)
-    .attr("x2", (d) => d.target.x)
-    .attr("y2", (d) => d.target.y);
-
-  // Add nodes
-  containerCopy
-    .selectAll(".node")
-    .data(currentGraph.nodes)
-    .join("circle")
-    .attr("r", 10)
-    .attr("cx", (d) => d.x)
-    .attr("cy", (d) => d.y)
-    .attr("fill", (d) => (d.fx ? "#ff7f0e" : "#69b3a2"))
-    .attr("stroke", "#fff")
-    .attr("stroke-width", 1.5);
-
-  // Add labels
-  containerCopy
-    .selectAll(".label")
-    .data(currentGraph.nodes)
-    .join("text")
-    .attr("x", (d) => d.x)
-    .attr("y", (d) => d.y)
-    .attr("dx", 15)
-    .attr("dy", 4)
-    .attr("font-family", "Arial, sans-serif")
-    .attr("font-size", "14px")
-    .attr("fill", "#333")
-    .text((d) => d.name);
-
-  // Create blob and trigger download
-  const svgString = svgCopy.node().outerHTML;
-  const blob = new Blob([svgString], {
-    type: "image/svg+xml;charset=utf-8",
+  // Inline the current stylesheet (optional, but recommended for portability)
+  // This grabs all <style> and <link rel="stylesheet"> tags and inlines them
+  let styleText = "";
+  document.querySelectorAll("style, link[rel='stylesheet']").forEach((styleNode) => {
+    if (styleNode.tagName === "STYLE") {
+      styleText += styleNode.textContent;
+    } else if (styleNode.tagName === "LINK") {
+      // Fetch and inline external CSS
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", styleNode.href, false);
+        xhr.send();
+        if (xhr.status === 200) {
+          styleText += xhr.responseText;
+        }
+      } catch (e) {}
+    }
   });
+  if (styleText) {
+    const styleElem = document.createElement("style");
+    styleElem.textContent = styleText;
+    clone.insertBefore(styleElem, clone.firstChild);
+  }
+
+  // Serialize the SVG
+  const serializer = new XMLSerializer();
+  let svgString = serializer.serializeToString(clone);
+
+  // Fix for missing xmlns attribute
+  if (!svgString.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+    svgString = svgString.replace(
+      /^<svg/,
+      '<svg xmlns="http://www.w3.org/2000/svg"'
+    );
+  }
+
+  // Download
+  const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
 
   const filename =
     filePath && filePath.name
-      ? filePath.name.replace(/\.[^/.]+$/, "") // remove extension
+      ? filePath.name.replace(/\.[^/.]+$/, "")
       : "graph";
   const a = document.createElement("a");
   a.href = url;
