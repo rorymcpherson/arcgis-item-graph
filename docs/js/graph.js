@@ -148,6 +148,20 @@ const iconConfig = {
   },
 };
 
+window.addEventListener("resize", () => {
+  const svg = document.querySelector("svg");
+  if (svg) {
+    svg.setAttribute("width", window.innerWidth);
+    svg.setAttribute("height", window.innerHeight);
+
+    // Optionally, re-center the simulation
+    if (simulation) {
+      simulation.force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+      simulation.alpha(0.3).restart();
+    }
+  }
+});
+
 fileInput.addEventListener("click", () => {
   fileInput.value = ""; // reset so the same file can be selected again
 });
@@ -417,9 +431,7 @@ function createGraph(graph) {
     .attr("class", "halo")
     .attr("r", (d) => getNodeSizes(d, scale_percentage).haloRadius)
     .attr("fill", NODE_FILL)
-    .attr("stroke", (d) =>
-      d.fx != null || d.fy != null ? NODE_FIXED_STROKE : NODE_FLOATING_STROKE
-    )
+    .attr("stroke", d => d.fx != null || d.fy != null ? NODE_FIXED_STROKE : NODE_FLOATING_STROKE)
     .attr("stroke-width", NODE_STROKE_WIDTH);
 
   nodeGroup
@@ -596,8 +608,7 @@ function resetPhysics() {
   });
 }
 
-function saveAsSVG() {
-  // Select the current SVG element
+async function saveAsSVG() {
   const svgElement = document.querySelector("svg");
   if (!svgElement) {
     alert("No graph data to save");
@@ -607,14 +618,12 @@ function saveAsSVG() {
   // Clone the SVG node deeply
   const clone = svgElement.cloneNode(true);
 
-  // Inline the current stylesheet (optional, but recommended for portability)
-  // This grabs all <style> and <link rel="stylesheet"> tags and inlines them
+  // Inline all CSS styles
   let styleText = "";
   document.querySelectorAll("style, link[rel='stylesheet']").forEach((styleNode) => {
     if (styleNode.tagName === "STYLE") {
       styleText += styleNode.textContent;
     } else if (styleNode.tagName === "LINK") {
-      // Fetch and inline external CSS
       try {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", styleNode.href, false);
@@ -630,6 +639,29 @@ function saveAsSVG() {
     styleElem.textContent = styleText;
     clone.insertBefore(styleElem, clone.firstChild);
   }
+
+  // Inline all external images as base64
+  const imageElements = clone.querySelectorAll("image");
+  const imagePromises = [];
+  imageElements.forEach((imgElem) => {
+    const href = imgElem.getAttribute("xlink:href") || imgElem.getAttribute("href");
+    if (href && !href.startsWith("data:")) {
+      imagePromises.push(
+        fetch(href)
+          .then(response => response.text())
+          .then(svgText => {
+            const base64 = btoa(unescape(encodeURIComponent(svgText)));
+            imgElem.setAttribute("xlink:href", "data:image/svg+xml;base64," + base64);
+          })
+          .catch(() => {
+            // If fetch fails, leave the original href
+          })
+      );
+    }
+  });
+
+  // Wait for all images to be inlined
+  await Promise.all(imagePromises);
 
   // Serialize the SVG
   const serializer = new XMLSerializer();
