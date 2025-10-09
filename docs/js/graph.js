@@ -6,6 +6,7 @@ let simulation;
 let dataPath;
 let filePath;
 let currentNodeSize = 40;
+const labelPadding = 20;
 
 const fileInput = document.getElementById("load-data");
 
@@ -25,7 +26,7 @@ const iconConfig = {
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/featureshosted16.svg",
     size: 15,
   },
-  "Table": {
+  Table: {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/table16.svg",
     size: 15,
@@ -35,7 +36,7 @@ const iconConfig = {
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/instantapps16.svg",
     size: 30,
   },
-  "Notebook": {
+  Notebook: {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/notebook16.svg",
     size: 15,
@@ -60,12 +61,12 @@ const iconConfig = {
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/desktopstyle16.svg",
     size: 15,
   },
-  "Style": {
+  Style: {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/style16.svg",
     size: 15,
   },
-  "Form": {
+  Form: {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/survey16.svg",
     size: 15,
@@ -75,60 +76,69 @@ const iconConfig = {
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/webscenelocal16.svg",
     size: 15,
   },
-  "Application": {
+  Application: {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/apps16.svg",
     size: 15,
   },
-  "Dashboard": {
+  Dashboard: {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/dashboard16.svg",
     size: 30,
   },
-  "Image": {
+  Image: {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/image16.svg",
     size: 15,
   },
-  "Solution": {
+  Solution: {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/solutions16.svg",
     size: 15,
   },
   "Image Service": {
-    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/tiledimagerylayer16.svg",
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/tiledimagerylayer16.svg",
     size: 15,
   },
   "Vector Tile Service": {
-    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/vectortile16.svg",
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/vectortile16.svg",
     size: 15,
   },
   "Tiled Imagery Layer": {
-    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/tiledimagerylayer16.svg",
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/tiledimagerylayer16.svg",
     size: 15,
   },
   "Tile Layer": {
-    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/maptiles16.svg",
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/maptiles16.svg",
     size: 15,
   },
   "Map Service": {
-    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/maptiles16.svg",
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/maptiles16.svg",
     size: 15,
   },
   "Geocoding Service": {
-    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/geocodeservice16.svg",
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/geocodeservice16.svg",
     size: 15,
   },
   "Vector Tile Package": {
-    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/vectortilepackage16.svg",
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/vectortilepackage16.svg",
     size: 15,
   },
-  "OGCFeatureServer": {
-    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/features16.svg",
+  OGCFeatureServer: {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/features16.svg",
     size: 15,
   },
-  "WFS": {
-    image: "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/featureshosted16.svg",
+  WFS: {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/featureshosted16.svg",
     size: 15,
   },
 };
@@ -291,17 +301,6 @@ function createGraph(graph) {
 
   const popup = d3.select("#popup");
 
-  // Add labels
-  const labels = container
-    .append("g")
-    .selectAll("text")
-    .data(graph.nodes)
-    .join("text")
-    .attr("class", "node-label")
-    .attr("dx", 15)
-    .attr("dy", 4)
-    .text((d) => d.name);
-
   // Add popup management with proper timer handling
   let popupTimer = null;
   let currentNode = null;
@@ -412,6 +411,24 @@ function createGraph(graph) {
       return "#69b3a2";
     });
 
+  // ...existing code for nodeGroup...
+
+  // Add labels as part of nodeGroup
+  nodeGroup
+    .append("text")
+    .attr("class", "node-label")
+    .attr("dx", (d) => {
+      const config = iconConfig[d.type];
+      const baseIconSize = config ? config.size : 15;
+      const scaleInput = document.querySelector(
+        'input[type="range"][oninput*="setNodeSize"]'
+      );
+      const scale_percentage = scaleInput ? scaleInput.value / 100 : 1;
+      return (baseIconSize * scale_percentage) / 2 + labelPadding; // 50px padding, adjust as needed
+    })
+    .attr("dy", 4)
+    .text((d) => d.name);
+
   d3.select("body").on("click", null);
   popup.on("click", null);
 
@@ -423,7 +440,7 @@ function createGraph(graph) {
       .attr("y2", (d) => d.target.y);
 
     nodeGroup.attr("transform", (d) => `translate(${d.x},${d.y})`);
-    labels.attr("x", (d) => d.x).attr("y", (d) => d.y);
+    nodeGroup.select(".node-label").attr("x", 0).attr("y", 0);
   });
 
   function drag(simulation) {
@@ -668,37 +685,14 @@ function resetAllNodesToFloating() {
   });
 }
 
-// function setNodeSize(size) {
-//   currentNodeSize = size;
-
-//   d3.selectAll("g.node-group").each(function (d) {
-//     const group = d3.select(this);
-
-//     // Update halo circle (outer outline)
-//     group.select("circle.halo").attr("r", currentNodeSize / 2 + 4); // slightly bigger than icon
-
-//     // Update fallback circle
-//     group.select("circle.fallback").attr("r", currentNodeSize / 2);
-
-//     // Update image icon (if present)
-//     group
-//       .select("image")
-//       .attr("width", currentNodeSize)
-//       .attr("height", currentNodeSize)
-//       .attr("x", -currentNodeSize / 2)
-//       .attr("y", -currentNodeSize / 2);
-//   });
-// }
-
 function setNodeSize(scale) {
   // scale is a multiplier, e.g. 1 = original size, 1.5 = 50% bigger, 0.5 = half size
 
-  console.log(scale)
+  console.log(scale);
   scale_percentage = scale / 100;
-  console.log(scale_percentage)
+  console.log(scale_percentage);
 
-
-  d3.selectAll("g.node-group").each(function(d) {
+  d3.selectAll("g.node-group").each(function (d) {
     const group = d3.select(this);
     const config = iconConfig[d.type];
     const baseIconSize = config ? config.size : 15; // fallback base size if no icon
@@ -709,11 +703,11 @@ function setNodeSize(scale) {
     const haloRadius = iconSize / 2 + 5 + NODE_STROKE_WIDTH;
 
     // Update halo circle radius
-    group.select("circle.halo")
-      .attr("r", haloRadius);
+    group.select("circle.halo").attr("r", haloRadius);
 
     // Update image size and position
-    group.select("image")
+    group
+      .select("image")
       .attr("width", iconSize)
       .attr("height", iconSize)
       .attr("x", -iconSize / 2)
@@ -722,13 +716,13 @@ function setNodeSize(scale) {
     // Update fallback circle radius
     // Original fallback radius was 10, so scale that as well:
     const fallbackRadius = 10 * scale_percentage;
-    group.select("circle.fallback")
-      .attr("r", fallbackRadius);
+    group.select("circle.fallback").attr("r", fallbackRadius);
+
+    // Update label offset
+    const label = d3.select(this).select(".node-label");
+    label.attr("dx", iconSize / 2 + labelPadding);
   });
 }
-
-
-
 
 // Start visualization once DOM is loaded
 document.addEventListener("DOMContentLoaded", initializeGraph);
