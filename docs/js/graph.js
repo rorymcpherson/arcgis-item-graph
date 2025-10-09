@@ -148,6 +148,20 @@ const iconConfig = {
   },
 };
 
+window.addEventListener("resize", () => {
+  const svg = document.querySelector("svg");
+  if (svg) {
+    svg.setAttribute("width", window.innerWidth);
+    svg.setAttribute("height", window.innerHeight);
+
+    // Optionally, re-center the simulation
+    if (simulation) {
+      simulation.force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+      simulation.alpha(0.3).restart();
+    }
+  }
+});
+
 fileInput.addEventListener("click", () => {
   fileInput.value = ""; // reset so the same file can be selected again
 });
