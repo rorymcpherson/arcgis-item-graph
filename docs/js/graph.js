@@ -6,6 +6,7 @@ let simulation;
 let dataPath;
 let filePath;
 let currentNodeSize = 40;
+const labelPadding = 20;
 
 const fileInput = document.getElementById("load-data");
 
@@ -13,12 +14,14 @@ const NODE_FILL = "#d9e1e7ff";
 const NODE_FIXED_STROKE = "#378ccdff";
 const NODE_FLOATING_STROKE = "#e0b169ff";
 const NODE_STROKE_WIDTH = 3;
+const IMAGE_SIZE = 75;
 
 const iconConfig = {
   "Web Map": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/maps16.svg",
-    size: 15,
+    size: 30,
+    ratio: 2,
   },
   "Feature Service": {
     image:
@@ -33,7 +36,8 @@ const iconConfig = {
   "Web Mapping Application": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/instantapps16.svg",
-    size: 15,
+    size: 30,
+    ratio: 2,
   },
   Notebook: {
     image:
@@ -48,7 +52,8 @@ const iconConfig = {
   "Web Experience": {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/experiencebuilder16.svg",
-    size: 15,
+    size: 30,
+    ratio: 2,
   },
   "Service Definition": {
     image:
@@ -83,7 +88,8 @@ const iconConfig = {
   Dashboard: {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/dashboard16.svg",
-    size: 15,
+    size: 30,
+    ratio: 2,
   },
   Image: {
     image:
@@ -93,6 +99,51 @@ const iconConfig = {
   Solution: {
     image:
       "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/solutions16.svg",
+    size: 15,
+  },
+  "Image Service": {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/tiledimagerylayer16.svg",
+    size: 15,
+  },
+  "Vector Tile Service": {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/vectortile16.svg",
+    size: 15,
+  },
+  "Tiled Imagery Layer": {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/tiledimagerylayer16.svg",
+    size: 15,
+  },
+  "Tile Layer": {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/maptiles16.svg",
+    size: 15,
+  },
+  "Map Service": {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/maptiles16.svg",
+    size: 15,
+  },
+  "Geocoding Service": {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/geocodeservice16.svg",
+    size: 15,
+  },
+  "Vector Tile Package": {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/vectortilepackage16.svg",
+    size: 15,
+  },
+  OGCFeatureServer: {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/features16.svg",
+    size: 15,
+  },
+  WFS: {
+    image:
+      "https://cdn-a.arcgis.com/cdn/1BE082D/js/arcgis-app-components/arcgis-app/assets/arcgis-item-type/featureshosted16.svg",
     size: 15,
   },
 };
@@ -197,6 +248,20 @@ function createGraph(graph) {
     .attr("height", currentHeight)
     .call(zoom); // call it once here
 
+  // Add arrowhead marker definition
+  svg.append("defs")
+    .append("marker")
+    .attr("id", "arrowhead")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 0) // tip of arrowhead at start
+    .attr("refY", 0)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 8)
+    .attr("orient", "auto")
+    .attr("fill", "#999")
+    .append("path")
+    .attr("d", "M10,-5L0,0L10,5"); // reversed path
+
   // Add container group for zoom/pan
   const container = svg.append("g");
   currentContainer = container;
@@ -246,25 +311,18 @@ function createGraph(graph) {
         .radius(Number(document.getElementById("collision-radius").value))
     );
 
-  const link = container
+  const linkLine = container
     .append("g")
+    .attr("class", "link-lines")
     .selectAll("line")
     .data(graph.links)
     .join("line")
-    .attr("class", "link");
+    .attr("class", "link")
+    .attr("stroke", "#999")
+    .attr("stroke-opacity", 0.6)
+    .attr("stroke-width", 1);
 
   const popup = d3.select("#popup");
-
-  // Add labels
-  const labels = container
-    .append("g")
-    .selectAll("text")
-    .data(graph.nodes)
-    .join("text")
-    .attr("class", "node-label")
-    .attr("dx", 15)
-    .attr("dy", 4)
-    .text((d) => d.name);
 
   // Add popup management with proper timer handling
   let popupTimer = null;
@@ -339,55 +397,114 @@ function createGraph(graph) {
       updateHaloColor(node, d);
     });
 
-  // Add halo circle
+  const linkArrow = container
+    .append("g")
+    .attr("class", "link-arrows")
+    .selectAll("line")
+    .data(graph.links)
+    .join("line")
+    .attr("class", "link-arrow")
+    .attr("stroke", "#999")
+    .attr("stroke-width", 1)
+    .attr("stroke-opacity", 0) // <--- Hide the shaft
+    .attr("marker-end", "url(#arrowhead)");
+
+  const scaleInput = document.querySelector('input[type="range"][oninput*="setNodeSize"]');
+  const scale_percentage = scaleInput ? scaleInput.value / 100 : 1;
+
   nodeGroup
     .append("circle")
     .attr("class", "halo")
-    .attr("r", (d) => {
-      const config = iconConfig[d.type];
-      return config
-        ? config.size / 2 + 5 + NODE_STROKE_WIDTH
-        : 15 + NODE_STROKE_WIDTH;
-    })
+    .attr("r", (d) => getNodeSizes(d, scale_percentage).haloRadius)
     .attr("fill", NODE_FILL)
     .attr("stroke", (d) =>
       d.fx != null || d.fy != null ? NODE_FIXED_STROKE : NODE_FLOATING_STROKE
     )
     .attr("stroke-width", NODE_STROKE_WIDTH);
 
-  // Add image if type is known
   nodeGroup
     .append("image")
     .attr("xlink:href", (d) => iconConfig[d.type]?.image || "")
-    .attr("width", (d) => iconConfig[d.type]?.size || 0)
-    .attr("height", (d) => iconConfig[d.type]?.size || 0)
-    .attr("x", (d) => -(iconConfig[d.type]?.size || 0) / 2)
-    .attr("y", (d) => -(iconConfig[d.type]?.size || 0) / 2)
+    .attr("width", (d) => getNodeSizes(d, scale_percentage).imageSize)
+    .attr("height", (d) => getNodeSizes(d, scale_percentage).imageSize)
+    .attr("x", (d) => -getNodeSizes(d, scale_percentage).imageSize / 2)
+    .attr("y", (d) => -getNodeSizes(d, scale_percentage).imageSize / 2)
     .attr("display", (d) => (iconConfig[d.type] ? "block" : "none"));
 
-  // Fallback: add a circle if no image
   nodeGroup
     .append("circle")
-    .attr("r", 10)
+    .attr("class", "fallback")
+    .attr("r", (d) => getNodeSizes(d, scale_percentage).fallbackRadius)
     .attr("fill", (d) => {
-      if (iconConfig[d.type]) return "none"; // hide fallback circle if icon exists
+      if (iconConfig[d.type]) return "none";
       if (d.fx != null || d.fy != null) return "#ff7f0e";
       if (d.selected) return "#1f77b4";
       return "#69b3a2";
     });
 
+  nodeGroup
+    .append("text")
+    .attr("class", "node-label")
+    .attr("dx", (d) => getNodeSizes(d, scale_percentage).haloRadius + labelPadding)
+    .attr("dy", 4)
+    .text((d) => d.name);
+
   d3.select("body").on("click", null);
   popup.on("click", null);
 
   simulation.on("tick", () => {
-    link
+    const scaleInput = document.querySelector('input[type="range"][oninput*="setNodeSize"]');
+    const scale_percentage = scaleInput ? scaleInput.value / 100 : 1;
+    const arrowLength = 5;
+
+    linkLine
       .attr("x1", (d) => d.source.x)
       .attr("y1", (d) => d.source.y)
       .attr("x2", (d) => d.target.x)
       .attr("y2", (d) => d.target.y);
 
+    linkArrow
+      .attr("x1", (d) => {
+        // Arrow shaft starts just before the tip
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const sizes = getNodeSizes(d.target, scale_percentage);
+        const r = Math.max(0, sizes.haloRadius - arrowLength);
+        if (dist === 0) return d.target.x;
+        return d.target.x - (dx / dist) * r;
+      })
+      .attr("y1", (d) => {
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const sizes = getNodeSizes(d.target, scale_percentage);
+        const r = Math.max(0, sizes.haloRadius - arrowLength);
+        if (dist === 0) return d.target.y;
+        return d.target.y - (dy / dist) * r;
+      })
+      .attr("x2", (d) => {
+        // Arrow tip
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const sizes = getNodeSizes(d.target, scale_percentage);
+        const r = Math.max(0, sizes.haloRadius);
+        if (dist === 0) return d.target.x;
+        return d.target.x - (dx / dist) * r;
+      })
+      .attr("y2", (d) => {
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const sizes = getNodeSizes(d.target, scale_percentage);
+        const r = Math.max(0, sizes.haloRadius);
+        if (dist === 0) return d.target.y;
+        return d.target.y - (dy / dist) * r;
+      });
+
     nodeGroup.attr("transform", (d) => `translate(${d.x},${d.y})`);
-    labels.attr("x", (d) => d.x).attr("y", (d) => d.y);
+    nodeGroup.select(".node-label").attr("x", 0).attr("y", 0);
   });
 
   function drag(simulation) {
@@ -480,71 +597,59 @@ function resetPhysics() {
 }
 
 function saveAsSVG() {
-  if (!currentContainer || !currentGraph) {
+  // Select the current SVG element
+  const svgElement = document.querySelector("svg");
+  if (!svgElement) {
     alert("No graph data to save");
     return;
   }
 
-  const svgCopy = d3
-    .create("svg")
-    .attr("xmlns", "http://www.w3.org/2000/svg")
-    .attr("width", currentWidth)
-    .attr("height", currentHeight);
+  // Clone the SVG node deeply
+  const clone = svgElement.cloneNode(true);
 
-  // Create container with current transform
-  const containerCopy = svgCopy
-    .append("g")
-    .attr("transform", currentContainer.attr("transform"));
-
-  // Add edges (links) first so they appear behind nodes
-  containerCopy
-    .selectAll(".link")
-    .data(currentGraph.links)
-    .join("line")
-    .attr("stroke", "#999")
-    .attr("stroke-opacity", 0.6)
-    .attr("stroke-width", 1)
-    .attr("x1", (d) => d.source.x)
-    .attr("y1", (d) => d.source.y)
-    .attr("x2", (d) => d.target.x)
-    .attr("y2", (d) => d.target.y);
-
-  // Add nodes
-  containerCopy
-    .selectAll(".node")
-    .data(currentGraph.nodes)
-    .join("circle")
-    .attr("r", 10)
-    .attr("cx", (d) => d.x)
-    .attr("cy", (d) => d.y)
-    .attr("fill", (d) => (d.fx ? "#ff7f0e" : "#69b3a2"))
-    .attr("stroke", "#fff")
-    .attr("stroke-width", 1.5);
-
-  // Add labels
-  containerCopy
-    .selectAll(".label")
-    .data(currentGraph.nodes)
-    .join("text")
-    .attr("x", (d) => d.x)
-    .attr("y", (d) => d.y)
-    .attr("dx", 15)
-    .attr("dy", 4)
-    .attr("font-family", "Arial, sans-serif")
-    .attr("font-size", "14px")
-    .attr("fill", "#333")
-    .text((d) => d.name);
-
-  // Create blob and trigger download
-  const svgString = svgCopy.node().outerHTML;
-  const blob = new Blob([svgString], {
-    type: "image/svg+xml;charset=utf-8",
+  // Inline the current stylesheet (optional, but recommended for portability)
+  // This grabs all <style> and <link rel="stylesheet"> tags and inlines them
+  let styleText = "";
+  document.querySelectorAll("style, link[rel='stylesheet']").forEach((styleNode) => {
+    if (styleNode.tagName === "STYLE") {
+      styleText += styleNode.textContent;
+    } else if (styleNode.tagName === "LINK") {
+      // Fetch and inline external CSS
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", styleNode.href, false);
+        xhr.send();
+        if (xhr.status === 200) {
+          styleText += xhr.responseText;
+        }
+      } catch (e) {}
+    }
   });
+  if (styleText) {
+    const styleElem = document.createElement("style");
+    styleElem.textContent = styleText;
+    clone.insertBefore(styleElem, clone.firstChild);
+  }
+
+  // Serialize the SVG
+  const serializer = new XMLSerializer();
+  let svgString = serializer.serializeToString(clone);
+
+  // Fix for missing xmlns attribute
+  if (!svgString.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+    svgString = svgString.replace(
+      /^<svg/,
+      '<svg xmlns="http://www.w3.org/2000/svg"'
+    );
+  }
+
+  // Download
+  const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
 
   const filename =
     filePath && filePath.name
-      ? filePath.name.replace(/\.[^/.]+$/, "") // remove extension
+      ? filePath.name.replace(/\.[^/.]+$/, "")
       : "graph";
   const a = document.createElement("a");
   a.href = url;
@@ -632,67 +737,52 @@ function resetAllNodesToFloating() {
   });
 }
 
-// function setNodeSize(size) {
-//   currentNodeSize = size;
-
-//   d3.selectAll("g.node-group").each(function (d) {
-//     const group = d3.select(this);
-
-//     // Update halo circle (outer outline)
-//     group.select("circle.halo").attr("r", currentNodeSize / 2 + 4); // slightly bigger than icon
-
-//     // Update fallback circle
-//     group.select("circle.fallback").attr("r", currentNodeSize / 2);
-
-//     // Update image icon (if present)
-//     group
-//       .select("image")
-//       .attr("width", currentNodeSize)
-//       .attr("height", currentNodeSize)
-//       .attr("x", -currentNodeSize / 2)
-//       .attr("y", -currentNodeSize / 2);
-//   });
-// }
-
 function setNodeSize(scale) {
-  // scale is a multiplier, e.g. 1 = original size, 1.5 = 50% bigger, 0.5 = half size
+  const scale_percentage = scale / 100;
 
-  console.log(scale)
-  scale_percentage = scale / 100;
-  console.log(scale_percentage)
-
-
-  d3.selectAll("g.node-group").each(function(d) {
+  d3.selectAll("g.node-group").each(function (d) {
     const group = d3.select(this);
-    const config = iconConfig[d.type];
-    const baseIconSize = config ? config.size : 15; // fallback base size if no icon
-    // Calculate scaled icon size
-    const iconSize = baseIconSize * scale_percentage;
+    const sizes = getNodeSizes(d, scale_percentage);
 
-    // Halo radius = (iconSize / 2) + 5 + NODE_STROKE_WIDTH (same formula as original)
-    const haloRadius = iconSize / 2 + 5 + NODE_STROKE_WIDTH;
-
-    // Update halo circle radius
-    group.select("circle.halo")
-      .attr("r", haloRadius);
-
-    // Update image size and position
+    group.select("circle.halo").attr("r", sizes.haloRadius);
     group.select("image")
-      .attr("width", iconSize)
-      .attr("height", iconSize)
-      .attr("x", -iconSize / 2)
-      .attr("y", -iconSize / 2);
-
-    // Update fallback circle radius
-    // Original fallback radius was 10, so scale that as well:
-    const fallbackRadius = 10 * scale_percentage;
-    group.select("circle.fallback")
-      .attr("r", fallbackRadius);
+      .attr("width", sizes.imageSize)
+      .attr("height", sizes.imageSize)
+      .attr("x", -sizes.imageSize / 2)
+      .attr("y", -sizes.imageSize / 2);
+    group.select("circle.fallback").attr("r", sizes.fallbackRadius);
+    group.select(".node-label").attr("dx", sizes.haloRadius + labelPadding);
   });
+
+  // Force simulation to update node positions
+  if (simulation) {
+    simulation.alpha(0.3).restart();
+  }
+
+  // // Update link endpoints so arrowheads stay at the edge of the halo
+  // d3.selectAll("line.link").each(function (d) {
+  //   const dx = d.target.x - d.source.x;
+  //   const dy = d.target.y - d.source.y;
+  //   const dist = Math.sqrt(dx * dx + dy * dy);
+  //   const sizes = getNodeSizes(d.target, scale_percentage);
+  //   const r = sizes.haloRadius;
+  //   const x2 = dist === 0 ? d.target.x : d.target.x - (dx / dist) * r;
+  //   const y2 = dist === 0 ? d.target.y : d.target.y - (dy / dist) * r;
+  //   d3.select(this)
+  //     .attr("x2", x2)
+  //     .attr("y2", y2);
+  // });
 }
 
-
-
+function getNodeSizes(d, scale_percentage = 1) {
+  const config = iconConfig[d.type];
+  const ratio = config && typeof config.ratio === "number" ? config.ratio : 1;
+  const haloRadius = ((IMAGE_SIZE * scale_percentage) * ratio) / 2 + 5 + NODE_STROKE_WIDTH;
+  const imageRatio = 0.65;
+  const imageSize = haloRadius * 2 * imageRatio;
+  const fallbackRadius = 10 * scale_percentage;
+  return { haloRadius, imageSize, fallbackRadius };
+}
 
 // Start visualization once DOM is loaded
 document.addEventListener("DOMContentLoaded", initializeGraph);

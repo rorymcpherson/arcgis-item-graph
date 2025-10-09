@@ -18,7 +18,7 @@ Either download the three static files or use the GitHub Pages hosted version he
 - **Save Graph** to save a copy of the current graph state and layout to a JSON file.  
 - **Reset node positions** to set all nodes back to floating.  
 - Tick the **Enable Popups** checkbox in the top right, and then hover over a node for more information such as the item id and url links for certain item types.  
-- The slider adjusts the node sizes, but causes scaling issues currently.  
+- The slider adjusts the node sizes.  
 - The **Adjust physics options** panel provides some sliders to adjust how the floating nodes position themselves.  
 
 
