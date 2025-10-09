@@ -1,7 +1,6 @@
 import os
 import json
-import networkx as nx
-from arcgis.gis import GIS
+from arcgis.gis import GIS, Item
 from arcgis.apps.itemgraph import create_dependency_graph
 import sys
 
@@ -35,24 +34,37 @@ def convert_itemgraph_to_json(source_graph: "arcgis.apps.itemgraph.ItemGraph", e
 
     # Process items -> nodes
     for item in source_graph.all_items(out_format="item"):
-        if item.type in excluded_types:
+        if isinstance(item, Item) and item.type in excluded_types:
             continue
 
-        title = f"<b>{item.title}</b><br/>{item.type}<br/>{item.id}<br/>"
-        if item.url and item.url.strip():
-            title = f"<b><a href='{item.url}' target='_blank'>{item.title}</a></b><br/>{item.type}<br/>{item.id}<br/>"
+        if isinstance(item, Item):
+            title = f"<b>{item.title}</b><br/>{item.type}<br/>{item.id}<br/>"
+            if item.url and item.url.strip():
+                title = f"<b><a href='{item.url}' target='_blank'>{item.title}</a></b><br/>{item.type}<br/>{item.id}<br/>"
 
-        nodes.append(
-            {
-                "id": str(item.id),
-                "name": f"{item.title} ({item.type})",
-                "title": title,
-                "type": item.type,
-                "group": item.type,
-            }
-        )
-        included_ids.add(item.id)
-
+            nodes.append(
+                {
+                    "id": str(item.id),
+                    "name": f"{item.title} ({item.type})",
+                    "title": title,
+                    "type": item.type,
+                    "group": item.type,
+                }
+            )
+            included_ids.add(item.id)
+        else:
+            # item is assumed to be a str and likely a URL
+            title = f"<b><a href='{item}' target='_blank'>{item}</a></b>"
+            nodes.append(
+                {
+                    "id": str(item),
+                    "name": str(item),
+                    "title": title,
+                    "type": "Unknown",
+                    "group": "Unknown",
+                }
+            )
+            
     # Process edges -> links
     links = []
     for src, dst in source_graph.edges:
