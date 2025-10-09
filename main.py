@@ -56,7 +56,7 @@ def convert_itemgraph_to_json(source_graph: "arcgis.apps.itemgraph.ItemGraph", e
     # Process edges -> links
     links = []
     for src, dst in source_graph.edges:
-        if src in included_ids and dst in included_ids:
+        if src in included_ids and dst in included_ids and (str(src) != str(dst)):
             links.append({"source": str(src), "target": str(dst)})
 
     return {"nodes": nodes, "links": links}
