@@ -1,24 +1,23 @@
-# ArcGIS Item Dependency Graphs  
+# ArcGIS Item Dependency Graphs
 
-## main.py  
-A Python script that uses the ArcGIS API for Python to generate a graph json file.  
-- Update the authentication method to your preferred method.  
-- Update the code that fetches the list of items to obtain your desired list to process.  
-- Optionally, update the output folder and file name.  
+This is a fork of [phaakma/arcgis_item_graph](https://github.com/phaakma/arcgis_item_graph) that has been customised for my own use. Credit and thanks to [phaakma](https://github.com/phaakma) for the original tool. The core dependency graph visualisation is their work. This fork replaces the local python script files and workflow with an ArcGIS Notebook that can be run as a web tool within ArcGIS Online. I have also adjusted the visualisation UI based on my own preferences.
+
+
+## Notebook
+The `notebook/` folder contains a notebook that creates a dependency graph json file for an item in ArcGIS Online, including upstream and downstream dependencies both inside and outside the organisation. The json file is output to the notebook files and then published as an item into ArcGIS Online. The json file can be downloaded from the item page and uploaded into the item graph visualisation tool. This notebook can be run in the notebook editor directly, or published and run as a web tool.
+
+- Accepts an item ID as an input parameter
+- Builds an item dependency graph for that item, including upstream and downstream dependencies both inside and outside the organisation
+- Converts the result to a D3.js-compatible json file the static website uses
+- Publishes the json file as an item in ArcGIS Online
+
 
 ## Static website  
-In the docs folder is a static website that allows to upload the json file which will be visualised using D3.js.  
+In the `docs/` folder is a static website that provides the UI for uploading the json file and visualising the item dependency graph using D3.js.
 
-Either download the three static files or use the GitHub Pages hosted version here:  
-[https://phaakma.github.io/arcgis_item_graph/](https://phaakma.github.io/arcgis_item_graph/)
-
-- **Load Data** to select and load in a local json file.  
-- The nodes can be manually moved and will lock in place. Right click a node to toggle the lock position on and off.  
-- **Save as SVG** to save the current view to an SVG file.  
-- **Save Graph** to save a copy of the current graph state and layout to a JSON file.  
-- **Reset node positions** to set all nodes back to floating.  
-- Tick the **Enable Popups** checkbox in the top right, and then hover over a node for more information such as the item id and url links for certain item types.  
-- The slider adjusts the node sizes.  
-- The **Adjust physics options** panel provides some sliders to adjust how the floating nodes position themselves.  
-
-
+- **Load Data** to select and load in a local json file.
+- The nodes can be manually moved and will lock in place. Right click a node to toggle the lock position on and off.
+- **Reset node positions** to set all nodes back to the original floating positions.
+- Popups are enabled by default. Hover over a node for more information, such as the item id and url links for certain item types.
+- **Show Labels** displays each node's title and item type.
+- The **Adjust physics options** panel provides sliders to adjust how the floating nodes position themselves.
